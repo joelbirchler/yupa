@@ -5,4 +5,4 @@ const (
 	pinEnable = "15" // physical pin 15, gpio/bcm 22
 )
 
-var startOfFrame = [2]byte{0x42, 0x4d}
+var startOfFrame = []byte{0x42, 0x4d, 0x00, 0x1c} // the second two bytes are actually the frame length (which is always 28)

@@ -44,9 +44,10 @@ func main() {
 		log.Printf("rendering error: %v", err)
 	}
 
-	if err := pms5003.Setup(pi); err != nil {
+	if err := pms5003.Open(pi); err != nil {
 		log.Fatalf("unable to setup pms5003: %v", err)
 	}
+	defer pms5003.Close()
 
 	for {
 		f, err := pms5003.ReadFrame()
@@ -58,6 +59,4 @@ func main() {
 
 		time.Sleep(time.Second)
 	}
-
-	// TODO: we should defer close() for both devices
 }

@@ -2,6 +2,7 @@ package pms5003
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"time"
 
@@ -10,10 +11,12 @@ import (
 )
 
 // TODO: We should probably port.Close() on exit
-var port io.ReadCloser
+var (
+	port io.ReadCloser
+)
 
-// Setup enables and resets the PMS5003
-func Setup(pi *raspi.Adaptor) (err error) {
+// Open resets and connects to the PMS5003
+func Open(pi *raspi.Adaptor) (err error) {
 	// Setup GPIO enable and reset pins (both start high)
 	if err := pi.DigitalWrite(pinEnable, 1); err != nil {
 		return err
@@ -44,13 +47,17 @@ func Setup(pi *raspi.Adaptor) (err error) {
 	return nil
 }
 
+// Close closes the connection with the PMS5003 serial port
+func Close() {
+	port.Close()
+}
+
 func reset(pi *raspi.Adaptor) (err error) {
 	// reset LOW
 	if err := pi.DigitalWrite(pinReset, 0); err != nil {
 		return err
 	}
 
-	// TODO: flush the serial
 	time.Sleep(1 * time.Millisecond)
 
 	// reset HIGH
@@ -69,44 +76,55 @@ func ReadFrame() (Frame, error) {
 		return frame, err
 	}
 
-	// we can throw this out and add it to the frame start (but probably improve framestart)
-	var length uint16
-	if err := binary.Read(port, binary.BigEndian, &length); err != nil {
-		return frame, err
-	}
-
 	// read the frame
 	if err := binary.Read(port, binary.BigEndian, &frame); err != nil {
 		return frame, err
 	}
 
-	// reserved
+	// reserved (we'll need these to check the checksum)
 	reserved := make([]byte, 2)
 	if _, err := port.Read(reserved); err != nil {
 		return frame, err
 	}
 
-	// checksum? (or just don't worry about it?)
+	// check the checksum
 	var checksum uint16
 	if err := binary.Read(port, binary.BigEndian, &checksum); err != nil {
 		return frame, err
 	}
 
+	sum := byteSum(startOfFrame) + frame.sum() + byteSum(reserved)
+	if sum != checksum {
+		return frame, fmt.Errorf("checksum error (got %d, expected %d)", sum, checksum)
+	}
+
 	return frame, nil
 }
 
+func byteSum(bytes []byte) uint16 {
+	var n uint16
+	for _, b := range bytes {
+		n += uint16(b)
+	}
+	return n
+}
+
 func waitForFrame() error {
-	b := make([]byte, 2)
+	i := 0
 
-	for {
-		if _, err := port.Read(b); err != nil {
-			return err
-		}
-
-		if b[0] == startOfFrame[0] && b[1] == startOfFrame[1] {
-			break
+	for i < len(startOfFrame) {
+		if readByte() == startOfFrame[i] {
+			i++
+		} else {
+			i = 0
 		}
 	}
 
 	return nil
+}
+
+func readByte() byte {
+	b := make([]byte, 1)
+	port.Read(b) // ignoring errors
+	return b[0]
 }
