@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"time"
 
+	"github.com/joelbirchler/yupa/pkg/pms5003"
 	"github.com/joelbirchler/yupa/pkg/rgbmatrix"
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
 func main() {
-	fmt.Println("yo")
-
 	pi := raspi.NewAdaptor()
+
 	if err := rgbmatrix.Setup(pi); err != nil {
 		log.Fatalf("unable to setup rgbmatrix: %v", err)
 	}
@@ -43,4 +43,21 @@ func main() {
 	if err := rgbmatrix.Render(); err != nil {
 		log.Printf("rendering error: %v", err)
 	}
+
+	if err := pms5003.Setup(pi); err != nil {
+		log.Fatalf("unable to setup pms5003: %v", err)
+	}
+
+	for {
+		f, err := pms5003.ReadFrame()
+		if err != nil {
+			log.Fatalf("error reading frame: %v", err)
+		}
+
+		log.Printf("%+v", f)
+
+		time.Sleep(time.Second)
+	}
+
+	// TODO: we should defer close() for both devices
 }
