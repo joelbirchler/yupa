@@ -5,7 +5,6 @@ Particulate matter sensor and display (raspberry pi art project)
 
 # TODO
 
-x read from the pms5003
 - clean up the code
 - install and wiring instructions (see pms5003 repo for pi config)
 - displays
