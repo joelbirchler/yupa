@@ -2,6 +2,9 @@ package main
 
 import (
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/joelbirchler/yupa/pkg/pms5003"
@@ -12,7 +15,7 @@ import (
 func main() {
 	pi := raspi.NewAdaptor()
 
-	if err := rgbmatrix.Setup(pi); err != nil {
+	if err := rgbmatrix.Open(pi); err != nil {
 		log.Fatalf("unable to setup rgbmatrix: %v", err)
 	}
 
@@ -47,7 +50,15 @@ func main() {
 	if err := pms5003.Open(pi); err != nil {
 		log.Fatalf("unable to setup pms5003: %v", err)
 	}
-	defer pms5003.Close()
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		rgbmatrix.Close()
+		pms5003.Close()
+		os.Exit(1)
+	}()
 
 	for {
 		f, err := pms5003.ReadFrame()

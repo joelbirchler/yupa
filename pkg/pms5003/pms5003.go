@@ -4,19 +4,21 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"time"
 
 	"github.com/jacobsa/go-serial/serial"
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-// TODO: We should probably port.Close() on exit
 var (
 	port io.ReadCloser
 )
 
 // Open resets and connects to the PMS5003
 func Open(pi *raspi.Adaptor) (err error) {
+	log.Println("opening PMS5003")
+
 	// Setup GPIO enable and reset pins (both start high)
 	if err := pi.DigitalWrite(pinEnable, 1); err != nil {
 		return err
@@ -49,6 +51,7 @@ func Open(pi *raspi.Adaptor) (err error) {
 
 // Close closes the connection with the PMS5003 serial port
 func Close() {
+	log.Println("closing PMS5003")
 	port.Close()
 }
 

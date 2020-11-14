@@ -7,8 +7,6 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
-// TODO: conn.Close() and other tear down reseting
-
 type Rgb struct {
 	r, g, b uint8
 }
@@ -21,7 +19,9 @@ var (
 )
 
 // Setup connects to the RgbMatrix device and resets
-func Setup(pi *raspi.Adaptor) (err error) {
+func Open(pi *raspi.Adaptor) (err error) {
+	log.Println("opening RGB Matrix")
+
 	// connect
 	conn, err = pi.GetConnection(deviceAddress, pi.GetDefaultBus())
 	if err != nil {
@@ -62,9 +62,20 @@ func Setup(pi *raspi.Adaptor) (err error) {
 	return
 }
 
-func write(reg uint8, b []byte) error {
-	log.Printf("writing to reg %d: %v", reg, b)
+func Clear() {
+	for i := range buff {
+		buff[i] = Rgb{0, 0, 0}
+	}
+	Render()
+}
 
+func Close() {
+	log.Println("closing RGB Matrix")
+	Clear()
+	conn.Close()
+}
+
+func write(reg uint8, b []byte) error {
 	if err := conn.WriteBlockData(reg, b); err != nil {
 		return err
 	}
