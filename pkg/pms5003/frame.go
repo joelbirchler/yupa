@@ -8,7 +8,7 @@ package pms5003
 // Reference:
 //   * Datasheet: https://www.aqmd.gov/docs/default-source/aq-spec/resources-page/plantower-pms5003-manual_v2-3.pdf
 //   * Discussion: https://publiclab.org/questions/samr/04-07-2019/how-to-interpret-pms5003-sensor-values
-//
+//   * AQI: https://en.wikipedia.org/wiki/Air_quality_index
 type Frame struct {
 	Standard10     uint16
 	Standard25     uint16

@@ -62,16 +62,10 @@ func Open(pi *raspi.Adaptor) (err error) {
 	return
 }
 
-func Clear() {
-	for i := range buff {
-		buff[i] = Rgb{0, 0, 0}
-	}
-}
-
 func Close() {
 	log.Println("closing RGB Matrix")
 
-	Clear()
+	Set(Clear)
 	Render()
 	conn.Close()
 }

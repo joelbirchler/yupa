@@ -30,10 +30,14 @@ func main() {
 		log.Fatalf("unable to setup rgbmatrix: %v", err)
 	}
 
-	rgbmatrix.Set(rgbmatrix.Ghost)
+	for i := 0; i < 600; i++ {
+		rgbmatrix.Set(rgbmatrix.Binary(uint16(i)))
 
-	if err := rgbmatrix.Render(); err != nil {
-		log.Printf("rendering error: %v", err)
+		if err := rgbmatrix.Render(); err != nil {
+			log.Printf("rendering error: %v", err)
+		}
+
+		time.Sleep(250 * time.Millisecond)
 	}
 
 	if err := pms5003.Open(pi); err != nil {
