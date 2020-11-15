@@ -66,12 +66,13 @@ func Clear() {
 	for i := range buff {
 		buff[i] = Rgb{0, 0, 0}
 	}
-	Render()
 }
 
 func Close() {
 	log.Println("closing RGB Matrix")
+
 	Clear()
+	Render()
 	conn.Close()
 }
 
@@ -83,10 +84,8 @@ func write(reg uint8, b []byte) error {
 	return nil
 }
 
-func SetPixel(x, y, r, g, b uint8) {
-	// set the pixel in the buffer
-	buff[(y*5)+x] = Rgb{r: r, g: g, b: b}
-	// TODO: probably add an out of range error
+func Set(image [25]Rgb) {
+	buff = image
 }
 
 func Render() (err error) {
