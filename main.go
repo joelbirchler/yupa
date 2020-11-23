@@ -30,16 +30,6 @@ func main() {
 		log.Fatalf("unable to setup rgbmatrix: %v", err)
 	}
 
-	for i := 0; i < 600; i++ {
-		rgbmatrix.Set(rgbmatrix.Binary(uint16(i)))
-
-		if err := rgbmatrix.Render(); err != nil {
-			log.Printf("rendering error: %v", err)
-		}
-
-		time.Sleep(250 * time.Millisecond)
-	}
-
 	if err := pms5003.Open(pi); err != nil {
 		log.Fatalf("unable to setup pms5003: %v", err)
 	}
@@ -47,10 +37,16 @@ func main() {
 	for {
 		f, err := pms5003.ReadFrame()
 		if err != nil {
-			log.Fatalf("error reading frame: %v", err)
+			log.Printf("error reading frame: %v", err)
+			// continue
 		}
 
 		log.Printf("%+v", f)
+
+		rgbmatrix.Set(rgbmatrix.Binary(f.Environment25))
+		if err := rgbmatrix.Render(); err != nil {
+			log.Printf("rendering error: %v", err)
+		}
 
 		time.Sleep(time.Second)
 	}

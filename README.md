@@ -5,6 +5,7 @@ Particulate matter sensor and display (raspberry pi art project)
 
 # TODO
 
+- seeing checksum errors when Count3um is higher. maybe we're not reading the checksum correctly?
 - install and wiring instructions (see pms5003 repo for pi config)
 - displays
     - binary # out
