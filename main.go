@@ -12,7 +12,12 @@ import (
 	"gobot.io/x/gobot/platforms/raspi"
 )
 
+type adafruitIo struct {
+	username, key, group string
+}
+
 func init() {
+	// trap sigterm to attempt to close before exiting
 	c := make(chan os.Signal)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 	go func() {
@@ -24,6 +29,11 @@ func init() {
 }
 
 func main() {
+	aio := adafruitIo{os.Getenv("AIO_USERNAME"), os.Getenv("AIO_KEY"), os.Getenv("AIO_GROUP")}
+	if aio.username == "" || aio.key == "" || aio.group == "" {
+		log.Fatalln("Environment variables AIO_USERNAME, AIO_KEY, and AIO_GROUP are required. See the README for more information.")
+	}
+
 	pi := raspi.NewAdaptor()
 
 	if err := rgbmatrix.Open(pi); err != nil {

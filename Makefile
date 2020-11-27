@@ -9,4 +9,4 @@ upload:
 	scp ./bin/yupa pi@${HOST}:~/yupa
 
 run:
-	ssh -t pi@${HOST} "sudo ~/yupa"
+	ssh -t pi@${HOST} "source ~/.profile; ~/yupa"
