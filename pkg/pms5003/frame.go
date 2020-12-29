@@ -25,7 +25,20 @@ type Frame struct {
 }
 
 func (f Frame) sum() uint16 {
-	return f.Standard10 + f.Standard25 + f.Standard100 +
-		f.Environment10 + f.Environment25 + f.Environment100 +
-		f.Count3um + f.Count5um + f.Count10um + f.Count25um + f.Count50um + f.Count100um
+	return byteSum(f.Standard10) +
+		byteSum(f.Standard25) +
+		byteSum(f.Standard100) +
+		byteSum(f.Environment10) +
+		byteSum(f.Environment25) +
+		byteSum(f.Environment100) +
+		byteSum(f.Count3um) +
+		byteSum(f.Count5um) +
+		byteSum(f.Count10um) +
+		byteSum(f.Count25um) +
+		byteSum(f.Count50um) +
+		byteSum(f.Count100um)
+}
+
+func byteSum(u uint16) uint16 {
+	return (u >> 8) + (u & 0xff)
 }

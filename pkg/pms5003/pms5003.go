@@ -96,20 +96,12 @@ func ReadFrame() (Frame, error) {
 		return frame, err
 	}
 
-	sum := byteSum(startOfFrame) + frame.sum() + byteSum(reserved)
+	sum := headerSum + frame.sum() + uint16(reserved[0]+reserved[1])
 	if sum != checksum {
 		return frame, fmt.Errorf("checksum error (got %d, expected %d)", sum, checksum)
 	}
 
 	return frame, nil
-}
-
-func byteSum(bytes []byte) uint16 {
-	var n uint16
-	for _, b := range bytes {
-		n += uint16(b)
-	}
-	return n
 }
 
 func waitForFrame() error {

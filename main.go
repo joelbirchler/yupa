@@ -50,9 +50,6 @@ func (a adafruitIo) send(pm25, pm100, e uint16) error {
 		return err
 	}
 
-	log.Printf("obj: %v", foo)
-	log.Printf("json: %s", data)
-
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-AIO-Key", a.key)
@@ -68,12 +65,9 @@ func (a adafruitIo) send(pm25, pm100, e uint16) error {
 
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if _, err = ioutil.ReadAll(resp.Body); err != nil {
 		return err
 	}
-
-	log.Println(string(body)) // FIXME: we can ignore the body
 
 	return nil
 }
