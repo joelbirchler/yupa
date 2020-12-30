@@ -8,7 +8,7 @@ import (
 )
 
 type Rgb struct {
-	r, g, b uint8
+	R, G, B uint8
 }
 
 // RgbMatrix is a driver for a 5x5 LED RGB matrix for the IS31FL3731.
@@ -93,9 +93,9 @@ func Render() (err error) {
 	addresses := make([]uint8, 135)
 	for i, b := range buff {
 		a := rgbAddresses[i]
-		addresses[a.r] = b.r
-		addresses[a.g] = b.g
-		addresses[a.b] = b.b
+		addresses[a.R] = b.R
+		addresses[a.G] = b.G
+		addresses[a.B] = b.B
 	}
 
 	for i := 0; i < len(addresses); i += 32 {

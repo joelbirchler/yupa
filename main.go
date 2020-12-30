@@ -58,11 +58,31 @@ func main() {
 			log.Printf("sending error: %v", err)
 		}
 
-		rgbmatrix.Set(rgbmatrix.Binary(f.Environment25))
+		rgbmatrix.Set(rgbmatrix.Fill(aqi2rgb(f.Environment25), 0x20))
 		if err := rgbmatrix.Render(); err != nil {
 			log.Printf("rendering error: %v", err)
 		}
 
 		time.Sleep(time.Second * 30)
 	}
+}
+
+// This a simplistic version of AQI that only uses one datapoint. Typically AQI is
+// calculated with multiple datapoints averaged over a 24-hour period.
+func aqi2rgb(u uint16) rgbmatrix.Rgb {
+	switch {
+	case u < 13: // Good
+		return rgbmatrix.Rgb{R: 0x00, G: 0xFF, B: 0x00}
+	case u < 35: // Moderate
+		return rgbmatrix.Rgb{R: 0xFF, G: 0x90, B: 0x00}
+	case u < 55: // Unhealthy for senstive groups
+		return rgbmatrix.Rgb{R: 0xFF, G: 0x30, B: 0x00}
+	case u < 150: // Unhealthy
+		return rgbmatrix.Rgb{R: 0xDD, G: 0x00, B: 0x00}
+	case u < 250: // Very Unhealthy
+		return rgbmatrix.Rgb{R: 0xBB, G: 0x00, B: 0x33}
+	}
+
+	// Hazardous
+	return rgbmatrix.Rgb{R: 0x33, G: 0x00, B: 0x33}
 }
