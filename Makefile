@@ -1,4 +1,4 @@
-HOST=gene
+HOST=gene.local
 
 all: build upload run
 

@@ -15,6 +15,9 @@ import (
 
 var aio adafruitio.FeedSet
 
+const sleepSeconds = 60
+const readsBeforeReset = 60
+
 func init() {
 	aio = adafruitio.FeedSet{Username: os.Getenv("AIO_USERNAME"), Key: os.Getenv("AIO_KEY"), Group: os.Getenv("AIO_GROUP")}
 	if aio.Username == "" || aio.Key == "" || aio.Group == "" {
@@ -43,9 +46,13 @@ func main() {
 		log.Fatalf("unable to setup pms5003: %v", err)
 	}
 
-	var errorCount uint16
+	var errorCount, reads uint16
 
 	for {
+		// it takes ~40 seconds for the PMS5003 to be accurrate after startup
+		time.Sleep(time.Second * sleepSeconds)
+
+		// read
 		f, err := pms5003.ReadFrame()
 		if err != nil {
 			log.Printf("error reading frame: %v", err)
@@ -54,16 +61,26 @@ func main() {
 
 		log.Printf("%+v", f)
 
+		// send for telemetry
 		if err := aio.Send(f.Environment25, f.Environment100, errorCount); err != nil {
 			log.Printf("sending error: %v", err)
 		}
 
+		// show on the display
 		rgbmatrix.Set(rgbmatrix.Fill(aqi2rgb(f.Environment25), 0x20))
 		if err := rgbmatrix.Render(); err != nil {
 			log.Printf("rendering error: %v", err)
 		}
 
-		time.Sleep(time.Second * 30)
+		// reset
+		if reads > readsBeforeReset {
+			if err := pms5003.Reset(pi); err != nil {
+				log.Printf("resetting error: %v", err)
+			}
+			reads = 0
+		}
+
+		reads++
 	}
 }
 

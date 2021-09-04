@@ -42,7 +42,7 @@ func Open(pi *raspi.Adaptor) (err error) {
 		return err
 	}
 
-	if err := reset(pi); err != nil {
+	if err := Reset(pi); err != nil {
 		return err
 	}
 
@@ -55,7 +55,10 @@ func Close() {
 	port.Close()
 }
 
-func reset(pi *raspi.Adaptor) (err error) {
+// Reset attempts to reset the PMS5003
+func Reset(pi *raspi.Adaptor) (err error) {
+	log.Println("resetting PMS5003")
+
 	// reset LOW
 	if err := pi.DigitalWrite(pinReset, 0); err != nil {
 		return err
