@@ -67,7 +67,7 @@ func main() {
 		}
 
 		// show on the display
-		rgbmatrix.Set(rgbmatrix.Fill(aqi2rgb(f.Environment25), 0x20))
+		rgbmatrix.Set(rgbmatrix.Fill(aqi2rgb(f.Environment25), 0x30))
 		if err := rgbmatrix.Render(); err != nil {
 			log.Printf("rendering error: %v", err)
 		}
